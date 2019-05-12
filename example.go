@@ -1,6 +1,10 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
 	r := gin.Default()
@@ -8,6 +12,13 @@ func main() {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
+	})
+	r.GET("/somejson", func(c *gin.Context) {
+		data := map[string]interface{}{
+			"lang": "GO言語",
+			"tag":  "<br>",
+		}
+		c.AsciiJSON(http.StatusOK, data)
 	})
 	r.Run()
 }
