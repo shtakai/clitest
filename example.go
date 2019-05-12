@@ -2,12 +2,20 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
+	"time"
 )
 
 type Person struct {
 	ID string `uri:"id" binding:"required,uuid"`
 	Name string `uri:"name" binding:"required"`
+}
+
+type User struct {
+	Name string `form:"name"`
+	Address string `form:"address"`
+	Birthday time.Time `form:"birthday" time_format:"2006-01-02" time_utc:"1"`
 }
 
 type StructA struct {
@@ -40,6 +48,7 @@ func main() {
 	r.GET("/getB", GetDataB())
 	r.GET("/getC", GetDataC())
 	r.GET("/getD", GetDataD())
+	r.GET("/testing", startPage())
 	r.Run()
 }
 
@@ -102,5 +111,20 @@ func GetDataD() gin.HandlerFunc {
 			"x": d.NestedAnonymousStruct,
 			"d": d.FieldD,
 		})
+	}
+}
+
+func startPage() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var user User
+		// If `GET`, only `Form` binding engine (`query`) used.
+		// If `POST`, first checks the `content-type` for `JSON` or `XML`, then uses `Form` (`form-data`).
+		// See more at https://github.com/gin-gonic/gin/blob/master/binding/binding.go#L48
+		if c.ShouldBind(&user) == nil {
+			log.Println(user.Name)
+			log.Println(user.Address)
+			log.Println(user.Birthday)
+		}
+		c.String(http.StatusOK, "success")
 	}
 }
