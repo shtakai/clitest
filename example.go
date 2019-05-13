@@ -12,6 +12,11 @@ type Person struct {
 	Name string `uri:"name" binding:"required"`
 }
 
+type Person2 struct {
+	Name string `form:"name"`
+	Address string `form:"address"`
+}
+
 type User struct {
 	Name string `form:"name"`
 	Address string `form:"address"`
@@ -49,7 +54,8 @@ func main() {
 	r.GET("/getC", GetDataC())
 	r.GET("/getD", GetDataD())
 	r.GET("/testing", startPage())
-	r.Run()
+	r.POST("/testing2", startPage2())
+	r.Run(":9999")
 }
 
 func userInfo() gin.HandlerFunc {
@@ -126,5 +132,20 @@ func startPage() gin.HandlerFunc {
 			log.Println(user.Birthday)
 		}
 		c.String(http.StatusOK, "success")
+	}
+}
+
+func startPage2() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var person Person2
+		name := c.PostForm("name")
+		address := c.PostForm("address")
+		log.Printf("name: %v   address: %v", name, address)
+		if c.ShouldBindQuery(&person) == nil {
+			log.Println("=== only bind by query string ===")
+			log.Println(person.Name)
+			log.Println(person.Address)
+		}
+		c.String(http.StatusOK, "Success")
 	}
 }
